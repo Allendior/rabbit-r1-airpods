@@ -1,0 +1,6 @@
+id=rabbit_r1_bluetooth_audio
+name=Rabbit R1 Bluetooth Audio Profiles
+version=1.0
+versionCode=1
+author=Allendior
+description=Enables Android 13 A2DP source, HFP AG, and AVRCP target profiles on the Rabbit R1.

@@ -1,0 +1,3 @@
+bluetooth.profile.a2dp.source.enabled=true
+bluetooth.profile.hfp.ag.enabled=true
+bluetooth.profile.avrcp.target.enabled=true

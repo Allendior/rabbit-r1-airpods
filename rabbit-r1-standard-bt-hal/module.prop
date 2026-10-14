@@ -1,0 +1,6 @@
+id=rabbit_r1_standard_bt_hal
+name=Rabbit R1 Standard Bluetooth Audio HAL
+version=1.0
+versionCode=1
+author=Allendior
+description=Fixes A2DP media audio on the Rabbit R1 Escape Android 13 image.

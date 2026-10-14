@@ -1,0 +1,9 @@
+# Local device materials and third-party binaries are intentionally private.
+librepods/
+librepods-original.apk
+Vector-v2.2-3080-Release.zip
+*.so
+rabbit-r1-standard-bt-hal/rabbit-r1-standard-bt-hal.zip
+
+# Local diagnostics.
+*.log
