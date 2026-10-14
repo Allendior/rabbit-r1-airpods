@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -82,13 +83,19 @@ public final class CameraControlsModule extends XposedModule {
             request.setAccessible(true);
             hook(request).intercept(chain -> {
                 String action = (String) chain.getArg(1);
-                if (!"capturePhoto".equals(action)) {
-                    return chain.proceed();
-                }
                 Object controller = chain.getThisObject();
                 Activity activity = (Activity) getField(controller, "activity");
-                activity.runOnUiThread(() -> captureAndSave(activity));
-                return null;
+                if ("capturePhoto".equals(action)) {
+                    activity.runOnUiThread(() -> captureAndSave(activity));
+                    return null;
+                }
+                if ("volumeStep".equals(action)) {
+                    String payload = (String) chain.getArg(2);
+                    int direction = new JSONObject(payload).optInt("direction", 0);
+                    if (direction != 0) adjustMediaVolume(activity, direction);
+                    return null;
+                }
+                return chain.proceed();
             });
 
             Method emit = activityClass.getDeclaredMethod("emit", String.class, JSONObject.class);
@@ -103,7 +110,7 @@ public final class CameraControlsModule extends XposedModule {
                 return chain.proceed();
             });
 
-            log(Log.INFO, TAG, "Eye capture controls installed");
+            log(Log.INFO, TAG, "Eye and hardware controls installed");
         } catch (Throwable error) {
             log(Log.ERROR, TAG, "Could not install camera hooks", error);
         }
@@ -206,12 +213,44 @@ public final class CameraControlsModule extends XposedModule {
                         "h.textContent='POWER: PHOTO  •  HOLD: ASK ABOUT VIEW';" +
                         "h.style.cssText='font-size:9px;opacity:.68;text-align:center;letter-spacing:.05em;margin-top:4px';" +
                         "bar.parentNode.insertBefore(h,bar.nextSibling);" +
+                        "const hw=document.querySelector('.hardware-card');" +
+                        "if(hw&&!hw.dataset.volumeSwipe){hw.dataset.volumeSwipe='1';" +
+                        "const hint=document.createElement('div');hint.id='ctrl-volume-swipe';" +
+                        "hint.textContent='VOLUME  ◀  SWIPE  ▶';" +
+                        "hint.style.cssText='font:9px monospace;color:#ff4d00;text-align:center;height:13px;line-height:13px;letter-spacing:.04em';" +
+                        "const list=document.getElementById('hw-list');list.parentNode.insertBefore(hint,list);" +
+                        "hw.style.touchAction='pan-y';" +
+                        "let sx=0,sy=0,lx=0,tracking=false,horizontal=false,swallow=false,seq=0;" +
+                        "hw.addEventListener('pointerdown',e=>{const s=window.R1Shell?.getState?.();" +
+                        "if(!s||s.page!==3||s.sheet)return;tracking=true;horizontal=false;sx=lx=e.clientX;sy=e.clientY;" +
+                        "try{hw.setPointerCapture(e.pointerId)}catch(_){}});" +
+                        "hw.addEventListener('pointermove',e=>{if(!tracking)return;const dx=e.clientX-sx,dy=e.clientY-sy;" +
+                        "if(!horizontal){if(Math.abs(dx)<6)return;if(Math.abs(dx)<=Math.abs(dy)*1.15)return;horizontal=true;}" +
+                        "e.preventDefault();while(Math.abs(e.clientX-lx)>=10){const d=e.clientX>lx?1:-1;" +
+                        "window.R1Hw?.adjust?.('volume',d);try{R1Bridge.request('volume-'+(++seq),'volumeStep',JSON.stringify({direction:d}))}catch(_){}" +
+                        "lx+=d*10;}} ,{passive:false});" +
+                        "const end=e=>{if(horizontal){swallow=true;setTimeout(()=>swallow=false,80)}tracking=false;horizontal=false;" +
+                        "try{hw.releasePointerCapture(e.pointerId)}catch(_){}};" +
+                        "hw.addEventListener('pointerup',end);hw.addEventListener('pointercancel',end);" +
+                        "hw.addEventListener('click',e=>{if(swallow){e.preventDefault();e.stopImmediatePropagation();}},true);}" +
                         "})();";
                 web.evaluateJavascript(script, null);
             } catch (Throwable error) {
                 log(Log.ERROR, TAG, "Could not add Eye controls", error);
             }
         }, 1400);
+    }
+
+    private void adjustMediaVolume(Activity activity, int direction) {
+        try {
+            AudioManager audio = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+            if (audio == null) return;
+            int adjustment = direction > 0 ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+            audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, adjustment, 0);
+            log(Log.INFO, TAG, direction > 0 ? "Hardware swipe volume up" : "Hardware swipe volume down");
+        } catch (Throwable error) {
+            log(Log.ERROR, TAG, "Could not adjust media volume", error);
+        }
     }
 
     private boolean isEyeActive(Activity activity) {

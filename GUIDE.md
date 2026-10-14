@@ -27,13 +27,13 @@ shasum -a 256 -c SHA256SUMS.txt
 
 ## 1. Add photo capture to Vision Eye
 
-Install the camera controls APK:
+Install the controls APK:
 
 ```sh
-adb install -r downloads/rabbit-r1-camera-controls-v1.0.0.apk
+adb install -r downloads/rabbit-r1-controls-v1.1.0.apk
 ```
 
-Enable **Rabbit R1 Camera Controls** in Vector, then scope it only to
+Enable **Rabbit R1 Controls** in Vector, then scope it only to
 `dev.r1native.shell`. Restart the launcher or reboot. Vector's command-line
 equivalent is:
 
@@ -66,21 +66,26 @@ The launcher captures the current Eye frame and sends it as an OpenAI-compatible
 the frame orientation before that step, so Hermes receives the same upright
 view you would save to Gallery.
 
-## 2. Add the top-edge volume gesture
+## 2. Control volume from the Hardware page
 
-Install `downloads/rabbit-r1-volume-swipe-v1.0.zip` in Magisk and reboot.
+The same v1.1 controls APK adds the volume gesture. Open the **CTRL** tab so the
+Hardware card is visible, then swipe horizontally anywhere inside that card:
 
-Start a horizontal swipe inside the top 100 pixels of the 480×640 screen:
+- move right to raise media volume;
+- move left to lower media volume.
 
-- swipe left to lower media volume;
-- swipe right to raise media volume.
-
-The module reads the touchscreen only. It does not remap the hardware wheel, so
-the wheel remains available for scrolling. Verify recognized gestures with:
+The `VOLUME ◀ SWIPE ▶` label shows where the gesture is available. Its percentage
+and orange bar move with your finger, and Android media volume changes at every
+step. The hardware wheel remains dedicated to its existing scrolling and card
+controls. Verify the native volume changes with:
 
 ```sh
-adb shell 'su -c "tail -20 /data/local/tmp/r1_volume_swipe.log"'
+adb shell 'cmd media_session volume --stream 3 --get'
+adb logcat -d | grep 'R1CameraControls.*Hardware swipe'
 ```
+
+The earlier experimental top-edge Magisk listener is no longer used. If you
+installed it, disable or remove **Rabbit R1 Top-Swipe Volume** in Magisk.
 
 ## 3. Enable the Bluetooth audio profiles
 
@@ -144,9 +149,9 @@ and listening-mode controls after the AirPods connect.
 
 ## Roll back
 
-### Camera controls
+### R1 controls
 
-Disable **Rabbit R1 Camera Controls** in Vector, force-stop the launcher, then
+Disable **Rabbit R1 Controls** in Vector, force-stop the launcher, then
 start it again. Uninstall the extension when you no longer need it:
 
 ```sh
@@ -154,10 +159,6 @@ adb uninstall dev.r1native.cameracontrols
 ```
 
 Existing photos in `DCIM/RabbitR1` remain in Gallery.
-
-### Volume gesture
-
-Disable or uninstall **Rabbit R1 Top-Swipe Volume** in Magisk and reboot.
 
 ### Bluetooth changes
 

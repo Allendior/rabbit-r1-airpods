@@ -12,8 +12,9 @@ with the R1 Escape/Lineage-based system image.
   photos stay landscape, with the preview and saved JPEG facing upright.
 - **Hermes vision:** hold the power button in Eye, ask about the scene, and
   release it to send the current corrected frame to Hermes.
-- **Top-edge volume gesture:** swipe left or right across the top of the screen
-  for volume while keeping the wheel dedicated to scrolling.
+- **Hardware Control volume gesture:** open **CTRL** and swipe anywhere across
+  the Hardware card. Moving right raises volume and moving left lowers it, with
+  the percentage and orange bar updating while your finger moves.
 - **AirPods and LibrePods:** restore A2DP media audio and fix LibrePods battery
   and listening-mode support on Android 13.
 
@@ -25,8 +26,7 @@ modules, compatibility patch, and SHA-256 checksums.
 
 | Feature | Ready-to-use file |
 | --- | --- |
-| Eye capture, power-button photos, orientation, Hermes frames | `rabbit-r1-camera-controls-v1.0.0.apk` |
-| Top-edge volume swipe | `rabbit-r1-volume-swipe-v1.0.zip` |
+| Eye capture, orientation, Hermes frames, Hardware volume swipe | `rabbit-r1-controls-v1.1.0.apk` |
 | Bluetooth profile setup | `rabbit-r1-bluetooth-audio-profiles-v1.0.zip` |
 | LibrePods Android 13 fix | `librepods-android13-parcelable.patch` |
 
@@ -42,6 +42,5 @@ change, or rebuild it instead of treating the downloads as opaque files.
 ## Technical notes
 
 - [Camera controls](rabbit-r1-camera-controls/README.md)
-- [Volume swipe](rabbit-r1-volume-swipe/README.md)
 - [Bluetooth audio investigation](BLUETOOTH_AUDIO_INVESTIGATION.md)
 - [Standard Bluetooth audio HAL notes](rabbit-r1-standard-bt-hal/README.md)

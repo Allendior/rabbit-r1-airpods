@@ -3,6 +3,6 @@
     <application
         android:allowBackup="false"
         android:hasCode="true"
-        android:label="Rabbit R1 Camera Controls"
+        android:label="Rabbit R1 Controls"
         android:supportsRtl="true" />
 </manifest>

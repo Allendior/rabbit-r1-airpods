@@ -1,4 +1,4 @@
-# Rabbit R1 Eye camera controls
+# Rabbit R1 controls
 
 This libxposed module extends `dev.r1native.shell` without replacing or
 re-signing the launcher APK.
@@ -13,7 +13,10 @@ re-signing the launcher APK.
 - rotates captured frames from the orientation sensor for portrait and both
   landscape directions;
 - corrects the same frame before the launcher's Hermes vision pipeline receives
-  it.
+  it;
+- adds `VOLUME ◀ SWIPE ▶` to the Hardware/CTRL card;
+- raises volume while your finger moves right and lowers it while your finger
+  moves left, updating the existing percentage and bar in real time.
 
 ## Why this is a module
 
@@ -55,8 +58,11 @@ Open Eye and take one portrait and one landscape photo. Check Gallery or:
 
 ```sh
 adb shell 'ls -lt /storage/emulated/0/DCIM/RabbitR1 | head'
-adb logcat -d | grep R1CameraControls
 ```
 
-The log records the device rotation, JPEG rotation, MediaStore URI, and byte
-count without recording image content.
+The log records camera orientation, saved-photo details, and Hardware volume
+steps without recording image content:
+
+```sh
+adb logcat -d | grep R1CameraControls
+```
