@@ -1,105 +1,129 @@
-# Rabbit R1 Android 13: LibrePods and AirPods audio
+# Fix AirPods audio and LibrePods on your rooted Rabbit R1
 
-## Scope
+Use this guide when your AirPods pair with your R1 but media does not play, or
+when LibrePods cannot show AirPods battery data on Android 13.
 
-This guide applies to the Rabbit R1 Escape Android 13 system with Rabbit's
-Android 12 MediaTek vendor partition, root through Magisk, and a working ADB
-connection. The tested device fingerprint began with
-`rabbit/gsi_r1/r1:13/TQ3A.230805.001.S1`.
+The steps were verified on the R1 Escape Android 13 system with Rabbit's
+Android 12 MediaTek vendor partition. They do not flash a partition. Magisk
+overlays the one file required for the A2DP repair, so you can undo it by
+disabling the module and rebooting.
 
-It fixes two separate issues:
+## Before you start
 
-1. Android had Bluetooth's A2DP, HFP, and AVRCP services available but disabled.
-2. After profiles were enabled, AirPods could pair and show battery data but
-   media audio could not open because the stock Bluetooth audio module and the
-   active AOSP provider used different Bluetooth session libraries.
+You need:
 
-## Install
+- a Rabbit R1 with Magisk root;
+- the R1 Escape Android 13 image, ideally with a fingerprint beginning
+  `rabbit/gsi_r1/r1:13/TQ3A.230805.001.S1`;
+- an ADB connection so you can check the result and recover easily;
+- your AirPods nearby.
 
-1. In Magisk, install `rabbit-r1-bluetooth-audio/rabbit-r1-bluetooth-audio.zip`.
-   This enables the required Bluetooth profiles on every boot.
-2. Install the privately retained `rabbit-r1-standard-bt-hal.zip` in Magisk.
-   It overlays only `/vendor/lib64/hw/audio.bluetooth.default.so`; it does not
-   flash or alter the actual vendor partition.
-3. Reboot.
-4. Pair the AirPods in Android Bluetooth settings and connect them.
-5. Apply `patches/librepods-android13-parcelable.patch` to a LibrePods clone,
-   build it with `cd android && ./gradlew :app:assembleFossDebug`, and install
-   the FOSS debug APK.
-   In Vector/Xposed, scope LibrePods to `com.android.bluetooth`, then reboot.
-
-## Verify
-
-Run these commands from a host with ADB. Substitute the device serial when
-needed.
+First identify your running system. Do not rely only on the ROM name you were
+told; this guide addresses a specific Android 13 and vendor combination.
 
 ```sh
-adb shell 'getprop init.svc.vendor.audio-hal'
+adb shell getprop ro.build.fingerprint
+adb shell getprop ro.lineage.version
+```
+
+If you see a substantially different Android or vendor build, read the
+[technical investigation](BLUETOOTH_AUDIO_INVESTIGATION.md) before continuing.
+
+## 1. Enable the Bluetooth profiles
+
+Install `rabbit-r1-bluetooth-audio/rabbit-r1-bluetooth-audio.zip` from Magisk,
+then reboot. This enables A2DP source, HFP audio gateway, and AVRCP target at
+every boot.
+
+After reboot, pair your AirPods in Android Bluetooth settings and connect them.
+You should see them as the active A2DP device:
+
+```sh
 adb shell 'dumpsys bluetooth_manager | grep -E "mActiveDevice|mConnectionState"'
+```
+
+Pairing alone is not enough on the affected R1 image. If audio is still silent,
+continue with the A2DP repair.
+
+## 2. Repair A2DP media audio
+
+On the affected R1 Escape build, Android's A2DP provider and Rabbit's vendor
+Bluetooth audio module keep separate audio-session state. Bluetooth can report
+that your AirPods are connected while AudioPolicy cannot open a media output.
+
+The working repair replaces only
+`/vendor/lib64/hw/audio.bluetooth.default.so` through a Magisk overlay with a
+standard HIDL Bluetooth audio module. The original vendor partition stays
+unchanged.
+
+This repository deliberately does not include that prebuilt module. It came
+from a public vendor dump, and a public dump does not automatically grant
+redistribution rights. If you obtain a legally usable copy for this tested
+build, verify it before installing:
+
+```sh
 adb shell 'su -c "sha256sum /vendor/lib64/hw/audio.bluetooth.default.so"'
 ```
 
-Expected results are `running`, a connected active A2DP device, and this hash:
+After installing the Magisk module and rebooting, the active HAL must have this
+SHA-256:
 
 ```
 bf69b46cde565a778ebf6fcaf2bf4c302ac289737d58f0320a590ed3f3282363
 ```
 
-Then play ordinary media. LibrePods should expose the connected AirPods and
-their battery/listening-mode controls. The tested device played a 44.1 kHz
-stereo `AudioTrack` through the AirPods after reboot.
+You should also see the vendor audio service running:
 
-## Android 13 LibrePods source compatibility fix
-
-LibrePods v1.0.1-rc1 used the Android 13 typed Parcelable overload for battery
-broadcasts and crashed when the broadcast was delivered from Bluetooth. In
-`PopupWindow.kt` and `IslandWindow.kt`, set the extras class loader first, then
-use the compatible deprecated overload:
-
-```kotlin
-intent.setExtrasClassLoader(Battery::class.java.classLoader)
-@Suppress("DEPRECATION")
-val batteryList = intent.getParcelableArrayListExtra<Battery>("data")
+```sh
+adb shell getprop init.svc.vendor.audio-hal
 ```
 
-The local LibrePods source already contains this change.
+Expected output: `running`.
 
-## Rollback
+Now play ordinary media. Your AirPods should receive it. The tested device
+played a 44.1 kHz stereo `AudioTrack` through AirPods after reboot.
 
-In Magisk, disable `Rabbit R1 Standard Bluetooth Audio HAL` and reboot. The
-original vendor HAL reappears automatically. To disable it from root:
+## 3. Build LibrePods for Android 13
+
+LibrePods v1.0.1-rc1 can crash when its battery broadcast reaches the Android
+13 typed Parcelable API. Apply
+`patches/librepods-android13-parcelable.patch` to a LibrePods checkout:
+
+```sh
+git clone https://github.com/librepods-org/librepods.git
+cd librepods
+git apply ../patches/librepods-android13-parcelable.patch
+cd android
+./gradlew :app:assembleFossDebug
+```
+
+Install the resulting FOSS debug APK. In Vector or LSPosed, scope LibrePods to
+`com.android.bluetooth`, then reboot.
+
+With your AirPods connected, LibrePods should show their battery information
+and let you change listening modes.
+
+## 4. Roll back safely
+
+If A2DP playback regresses, disable `Rabbit R1 Standard Bluetooth Audio HAL` in
+Magisk and reboot. The original vendor HAL will return automatically. From ADB:
 
 ```sh
 adb shell 'su -c "touch /data/adb/modules/rabbit_r1_standard_bt_hal/disable"'
 adb reboot
 ```
 
-Disable `Rabbit R1 Bluetooth Audio Profiles` as well only if you also want to
-undo A2DP/HFP/AVRCP profile enablement. Re-enable a module and reboot to restore
-it.
+Disable `Rabbit R1 Bluetooth Audio Profiles` as well only when you also want to
+undo A2DP, HFP, and AVRCP profile enablement.
 
-## For an AI agent diagnosing a new R1
+## If you are diagnosing another R1
 
-First establish the installed Android and vendor versions. Do not assume a
-device described as LineageOS is actually running LineageOS. Check Bluetooth
-profile enablement, A2DP connection state, and audio-policy logs. On this image,
-the signature failure is a successful A2DP provider session followed by
+Start with the Android build, vendor build, enabled Bluetooth profiles, A2DP
+connection state, and audio-policy logs. On the affected image, the distinctive
+failure is a successful A2DP provider session followed by
 `A2DP_SOFTWARE_ENCODING_DATAPATH is not ready` from the vendor audio HAL.
 
-Do not rely on A2DP offload or legacy-A2DP properties here: the tested image
-advertises an offload capability mask of zero and lacks `audio.a2dp.default.so`.
-The targeted standard HAL overlay is the repair. Verify its SHA-256 before
-installing and retain the rollback path above.
-
-## Binary provenance
-
-The Bluetooth HAL binary is a generic 64-bit module from a public
-[Rokid Android 12L vendor dump](https://github.com/buildwithfenna/rokid-docs/blob/665ed1ae182afea432797bd90607b0f8eaa8c722/yodaos/DECOMPILED/vendor/lib64/hw/audio.bluetooth.default.so), not an R1-specific
-upstream release. Its SHA-256 is recorded above. It was examined for its
-standard HIDL and `libbluetooth_audio_session.so` dependencies; all required
-symbols resolved on the R1. Validate it on any different R1 image before use.
-
-The source dump being public does not establish redistribution rights for the
-binary. Keep the actual `.so` and prebuilt module private unless the rights are
-confirmed. The guide, source changes, checksums, and build instructions are
-safe to publish separately.
+Do not expect offload or legacy-A2DP properties to repair this version: it
+advertises an offload capability mask of zero and does not include
+`audio.a2dp.default.so`. Verify any replacement HAL against the system it will
+run on and retain a Magisk rollback path.

@@ -1,10 +1,11 @@
-# Rabbit R1 standard Bluetooth audio HAL test
+# Repair A2DP media audio on your Rabbit R1
 
-This Magisk module overlays only `/vendor/lib64/hw/audio.bluetooth.default.so`.
-The installed R1 Android 13 system starts an AOSP HIDL 2.1 Bluetooth audio
-session, while its MediaTek audio module waits on a separate MediaTek session
-library. A generic standard module uses the standard session library already
-on the device.
+Use this Magisk module when your AirPods connect but media remains silent on the
+affected R1 Escape Android 13 image. It overlays only
+`/vendor/lib64/hw/audio.bluetooth.default.so`. Your system starts an AOSP HIDL
+2.1 Bluetooth audio session, while the stock MediaTek module waits on a
+separate MediaTek session library. The replacement uses the standard session
+library already on your R1.
 
 The binary is from the public [Rokid Android 12L vendor dump](https://github.com/buildwithfenna/rokid-docs/blob/665ed1ae182afea432797bd90607b0f8eaa8c722/yodaos/DECOMPILED/vendor/lib64/hw/audio.bluetooth.default.so).
 SHA-256: `bf69b46cde565a778ebf6fcaf2bf4c302ac289737d58f0320a590ed3f3282363`.
@@ -12,7 +13,7 @@ It is a generic `audio.bluetooth.default.so` built from AOSP-style `system/bt/au
 
 The original R1 HAL SHA-256 is
 `d51436177ab9434af022b18ad24b7287c3329aef536cc8579be8427436150e42`.
-This module does not modify the original vendor partition. Disable it in Magisk
+This module does not modify your original vendor partition. Disable it in Magisk
 or create `/data/adb/modules/rabbit_r1_standard_bt_hal/disable` and reboot to
 restore the original HAL.
 

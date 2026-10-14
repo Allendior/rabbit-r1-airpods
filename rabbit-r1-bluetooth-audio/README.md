@@ -1,12 +1,14 @@
-# Rabbit R1 Bluetooth audio profiles
+# Enable Bluetooth audio profiles on your Rabbit R1
 
-The Rabbit R1 Android 13 build had only `GattService` enabled. Its Bluetooth package includes A2DP, HFP, and AVRCP services, but their profile properties were unset. This Magisk module sets the three properties at boot so paired audio devices can connect.
+Install this Magisk module when your Rabbit R1 Android 13 image does not enable
+Bluetooth audio profiles by default. Your Bluetooth package already contains
+A2DP, HFP, and AVRCP; this module enables their profile properties at boot so
+your paired audio devices can connect.
 
-The runtime change was tested on the R1 with `resetprop` and a Bluetooth service restart. To remove the boot-time change, disable or uninstall this module in Magisk and reboot.
+To undo the change, disable or uninstall this module in Magisk and reboot.
 
 The property names come from Android 13 Bluetooth's `A2dpService.isEnabled()`, `HeadsetService.isEnabled()`, and `AvrcpTargetService.isEnabled()` checks.
 
-This enables Bluetooth profiles and pairing. On the tested R1 image, it must be
-installed together with the `rabbit-r1-standard-bt-hal` module to make A2DP
-media audio work. That module resolves the separate vendor audio-HAL session
-failure; see the top-level `GUIDE.md` for installation and rollback.
+This enables profiles and pairing. On the affected R1 Escape image, you also
+need the standard Bluetooth audio HAL repair before A2DP media audio will work.
+See the top-level `GUIDE.md` for the diagnostic and rollback steps.
