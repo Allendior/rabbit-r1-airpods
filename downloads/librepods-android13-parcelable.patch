@@ -1,0 +1,40 @@
+diff --git a/android/app/src/main/java/me/kavishdevar/librepods/presentation/overlays/IslandWindow.kt b/android/app/src/main/java/me/kavishdevar/librepods/presentation/overlays/IslandWindow.kt
+index bf5eff8..5bea529 100644
+--- a/android/app/src/main/java/me/kavishdevar/librepods/presentation/overlays/IslandWindow.kt
++++ b/android/app/src/main/java/me/kavishdevar/librepods/presentation/overlays/IslandWindow.kt
+@@ -109,12 +109,9 @@ class IslandWindow(private val context: Context) {
+     private val batteryReceiver = object : BroadcastReceiver() {
+         override fun onReceive(context: Context?, intent: Intent?) {
+             if (intent?.action == AirPodsNotifications.BATTERY_DATA) {
+-                val batteryList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+-                    intent.getParcelableArrayListExtra("data", Battery::class.java)
+-                } else {
+-                    @Suppress("DEPRECATION")
+-                    intent.getParcelableArrayListExtra("data")
+-                }
++                intent.setExtrasClassLoader(Battery::class.java.classLoader)
++                @Suppress("DEPRECATION")
++                val batteryList = intent.getParcelableArrayListExtra<Battery>("data")
+                 updateBatteryDisplay(batteryList)
+             } else if (intent?.action == AirPodsNotifications.DISCONNECT_RECEIVERS) {
+                 try {
+diff --git a/android/app/src/main/java/me/kavishdevar/librepods/presentation/overlays/PopupWindow.kt b/android/app/src/main/java/me/kavishdevar/librepods/presentation/overlays/PopupWindow.kt
+index 4247ea4..758429c 100644
+--- a/android/app/src/main/java/me/kavishdevar/librepods/presentation/overlays/PopupWindow.kt
++++ b/android/app/src/main/java/me/kavishdevar/librepods/presentation/overlays/PopupWindow.kt
+@@ -182,12 +182,9 @@ class PopupWindow(
+         batteryUpdateReceiver = object : BroadcastReceiver() {
+             override fun onReceive(context: Context?, intent: Intent?) {
+                 if (intent?.action == AirPodsNotifications.BATTERY_DATA) {
+-                    val batteryList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+-                        intent.getParcelableArrayListExtra("data", Battery::class.java)
+-                    } else {
+-                        @Suppress("DEPRECATION")
+-                        intent.getParcelableArrayListExtra("data")
+-                    }
++                    intent.setExtrasClassLoader(Battery::class.java.classLoader)
++                    @Suppress("DEPRECATION")
++                    val batteryList = intent.getParcelableArrayListExtra<Battery>("data")
+                     if (batteryList != null) {
+                         updateBatteryStatusFromList(batteryList)
+                     }

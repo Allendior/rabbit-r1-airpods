@@ -1,0 +1,2 @@
+7457b4b5a4aa3dabe396fb9891902e40e07a980e71d4e47a1d8fb53677179ace  rabbit-r1-bluetooth-audio-profiles-v1.0.zip
+ef9578d7a02b9588cc939a489ecdc325578f6d8dee9edb8c3806fb4b1721cac3  librepods-android13-parcelable.patch

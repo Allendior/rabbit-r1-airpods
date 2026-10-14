@@ -35,3 +35,7 @@ want the technical cause, evidence, and alternatives that were ruled out.
 - `rabbit-r1-standard-bt-hal/` explains the A2DP repair and how to verify it.
   Its third-party prebuilt binary is intentionally not included in this public
   repository until redistribution rights are confirmed.
+
+## Downloads
+
+Open [downloads](downloads/) for ready-to-use files and their SHA-256 checksums.
