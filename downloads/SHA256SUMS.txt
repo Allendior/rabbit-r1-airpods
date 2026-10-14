@@ -1,2 +1,4 @@
 7457b4b5a4aa3dabe396fb9891902e40e07a980e71d4e47a1d8fb53677179ace  rabbit-r1-bluetooth-audio-profiles-v1.0.zip
 ef9578d7a02b9588cc939a489ecdc325578f6d8dee9edb8c3806fb4b1721cac3  librepods-android13-parcelable.patch
+5ac3238d233dee50c2847e8f324a334e0e6a495f89f44a57dedd8b05c0743b19  rabbit-r1-camera-controls-v1.0.0.apk
+a955b022930f1edfb333166fddd5733983e50ad2a5beaf5c7393de5fbd5dee9f  rabbit-r1-volume-swipe-v1.0.zip

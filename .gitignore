@@ -4,6 +4,10 @@ librepods-original.apk
 Vector-v2.2-3080-Release.zip
 *.so
 rabbit-r1-standard-bt-hal/rabbit-r1-standard-bt-hal.zip
+analysis/
+rabbit-r1-camera-controls/.gradle/
+rabbit-r1-camera-controls/build/
+rabbit-r1-camera-controls/app/build/
 
 # Local diagnostics.
 *.log

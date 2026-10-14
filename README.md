@@ -1,41 +1,47 @@
-# Use AirPods with LibrePods on a rooted Rabbit R1
+# Rabbit R1 Android Mods: camera, AirPods, gestures, and Hermes vision
 
-If your Rabbit R1 pairs with AirPods but media stays silent, this repository
-documents the fix used on the R1 Escape Android 13 image. It also covers the
-LibrePods Android 13 crash that can prevent battery and listening-mode controls
-from working.
+Turn a rooted Rabbit R1 running Android 13 into a more capable everyday device.
+This repository collects the fixes and installable files tested on a Rabbit R1
+with the R1 Escape/Lineage-based system image.
 
-You will enable Android's Bluetooth audio profiles, repair the A2DP audio path,
-and install LibrePods with the Android 13 compatibility patch. The fix was
-verified after a reboot with AirPods connected as the active A2DP device and
-media playing through them.
+## What you can add
 
-## Is this for your R1?
-
-Use this guide if your R1 is rooted with Magisk, runs the R1 Escape Android 13
-image, and has Rabbit's Android 12 MediaTek vendor partition. The tested build
-fingerprint begins with `rabbit/gsi_r1/r1:13/TQ3A.230805.001.S1`.
-
-If you run a different ROM or vendor image, start with the checks in the guide
-before installing anything. The audio HAL fix is specific to the session-library
-mismatch found on this image.
+- **Eye camera controls:** take a photo from the Eye screen or press the power
+  button while Eye is open.
+- **Automatic photo orientation:** portrait photos stay portrait and landscape
+  photos stay landscape, with the preview and saved JPEG facing upright.
+- **Hermes vision:** hold the power button in Eye, ask about the scene, and
+  release it to send the current corrected frame to Hermes.
+- **Top-edge volume gesture:** swipe left or right across the top of the screen
+  for volume while keeping the wheel dedicated to scrolling.
+- **AirPods and LibrePods:** restore A2DP media audio and fix LibrePods battery
+  and listening-mode support on Android 13.
 
 ## Start here
 
-Follow [GUIDE.md](GUIDE.md) for the setup, checks, and rollback steps. Read
-[BLUETOOTH_AUDIO_INVESTIGATION.md](BLUETOOTH_AUDIO_INVESTIGATION.md) when you
-want the technical cause, evidence, and alternatives that were ruled out.
+Follow [GUIDE.md](GUIDE.md) for installation, verification, and rollback. The
+[downloads](downloads/) directory contains the ready-to-install APK, Magisk
+modules, compatibility patch, and SHA-256 checksums.
 
-## What you can use here
+| Feature | Ready-to-use file |
+| --- | --- |
+| Eye capture, power-button photos, orientation, Hermes frames | `rabbit-r1-camera-controls-v1.0.0.apk` |
+| Top-edge volume swipe | `rabbit-r1-volume-swipe-v1.0.zip` |
+| Bluetooth profile setup | `rabbit-r1-bluetooth-audio-profiles-v1.0.zip` |
+| LibrePods Android 13 fix | `librepods-android13-parcelable.patch` |
 
-- `rabbit-r1-bluetooth-audio/rabbit-r1-bluetooth-audio.zip` enables the A2DP,
-  HFP, and AVRCP profiles your R1 needs at boot.
-- `patches/librepods-android13-parcelable.patch` fixes the Android 13 battery
-  broadcast crash in a LibrePods checkout.
-- `rabbit-r1-standard-bt-hal/` explains the A2DP repair and how to verify it.
-  Its third-party prebuilt binary is intentionally not included in this public
-  repository until redistribution rights are confirmed.
+## Tested device
 
-## Downloads
+The current files were tested on Android 13 with a fingerprint beginning
+`rabbit/gsi_r1/r1:13/TQ3A.230805.001.S1`, Magisk root, and Vector Framework
+2.2/API 102. Read each component's notes before using it on another build.
 
-Open [downloads](downloads/) for ready-to-use files and their SHA-256 checksums.
+The source for the camera and volume additions is included so you can audit,
+change, or rebuild it instead of treating the downloads as opaque files.
+
+## Technical notes
+
+- [Camera controls](rabbit-r1-camera-controls/README.md)
+- [Volume swipe](rabbit-r1-volume-swipe/README.md)
+- [Bluetooth audio investigation](BLUETOOTH_AUDIO_INVESTIGATION.md)
+- [Standard Bluetooth audio HAL notes](rabbit-r1-standard-bt-hal/README.md)

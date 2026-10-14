@@ -1,0 +1,6 @@
+id=rabbit_r1_volume_swipe
+name=Rabbit R1 Top-Swipe Volume
+version=1.0
+versionCode=1
+author=Allendior
+description=Swipe left or right from the top edge to change media volume while keeping the scroll wheel for scrolling.
